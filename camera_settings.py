@@ -12,6 +12,8 @@ class CameraSettings:
 
     def setup_capture(self):
         config = yaml.load(open('cam_config.yaml', 'r'))['cap']
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, config['res_x'])
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config['res_y'])
         self.cap.set(cv2.CAP_PROP_BRIGHTNESS, config['brightness'])
         self.cap.set(cv2.CAP_PROP_CONTRAST, config['contrast'])
         self.cap.set(cv2.CAP_PROP_FOCUS, config['focus'])
@@ -92,7 +94,9 @@ class CameraSettings:
                 'white_balance': self.getWhiteBalance(),
                 'focus': self.getFocus(),
                 'zoom': self.get_zoom(),
-                'sharpness': self.get_sharpness()
+                'sharpness': self.get_sharpness(),
+                'res_x': 1920,
+                'res_y': 1080
             }
         }
         stream = open('cam_config.yaml', 'w')
@@ -121,8 +125,8 @@ if __name__ == "__main__":
 
     while camSettings.cap.isOpened:
         _, image = camSettings.cap.read()
-        cv2.imshow("window2", image)
-        print(cap.get(cv2.CAP_PROP_SATURATION))
+        small = cv2.resize(image, (0, 0), fx=0.25, fy=0.25, interpolation=cv2.INTER_AREA )
+        cv2.imshow("window2", small)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             camSettings.save()
             break

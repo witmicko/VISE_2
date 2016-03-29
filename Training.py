@@ -9,8 +9,8 @@ import templates
 class Training:
     def __init__(self):
         self.templates = templates.t
-        # self.cap = cv2.VideoCapture(0)
-        self.cap = cv2.VideoCapture('Video 3.mp4')
+        self.cap = cv2.VideoCapture(0)
+        # self.cap = cv2.VideoCapture('Video 3.mp4')
         self.method = cv2.TM_SQDIFF_NORMED
         self.gui_root = tkinter.Tk()
         self.gui_root.wm_state('iconic')
@@ -32,14 +32,17 @@ class Training:
 
     def setup_capture(self):
         config = yaml.load(open('cam_config.yaml', 'r'))['cap']
-        self.cap.set(cv2.CAP_PROP_BRIGHTNESS, config['brightness'])
-        self.cap.set(cv2.CAP_PROP_CONTRAST, config['contrast'])
-        self.cap.set(cv2.CAP_PROP_FOCUS, config['focus'])
-        self.cap.set(cv2.CAP_PROP_GAIN, config['gain'])
-        self.cap.set(cv2.CAP_PROP_SATURATION, config['saturation'])
-        self.cap.set(cv2.CAP_PROP_SHARPNESS, config['sharpness'])
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,  config['res_x'])
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config['res_y'])
+        self.cap.set(cv2.CAP_PROP_BRIGHTNESS,   config['brightness'])
+        self.cap.set(cv2.CAP_PROP_BRIGHTNESS,   config['brightness'])
+        self.cap.set(cv2.CAP_PROP_CONTRAST,     config['contrast'])
+        self.cap.set(cv2.CAP_PROP_FOCUS,        config['focus'])
+        self.cap.set(cv2.CAP_PROP_GAIN,         config['gain'])
+        self.cap.set(cv2.CAP_PROP_SATURATION,   config['saturation'])
+        self.cap.set(cv2.CAP_PROP_SHARPNESS,    config['sharpness'])
         self.cap.set(cv2.CAP_PROP_WHITE_BALANCE_BLUE_U, config['white_balance'])
-        self.cap.set(cv2.CAP_PROP_ZOOM, config['zoom'])
+        self.cap.set(cv2.CAP_PROP_ZOOM,         config['zoom'])
 
     def onmouse(self, event, x, y, flags, param):
         pass
