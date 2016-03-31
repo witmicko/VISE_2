@@ -11,6 +11,7 @@ LED_TEMPLATES = {
     'IND_LT':       {'active': False, 'file': 'ind_left.png'},
     'IND_RT':       {'active': False, 'file': 'ind_right.png'},
     'REVS':         {'active': False, 'file': 'rev.png'},
+    'SPEED':        {'active': False, 'file': 'speed.png'},
     'WATER':        {'active': False, 'file': 'water.png'}
      }
 
@@ -18,9 +19,13 @@ LED_TEMPLATES = {
 def get_templates(grey=False):
     templates = {}
     for name, t in LED_TEMPLATES.items():
+        temp = {}
         if grey:
-            templates[name] = cv2.cvtColor(cv2.imread('templates/' + t['file']), cv2.COLOR_BGR2GRAY)
+            temp['active'] = t['active']
+            temp['img'] = cv2.cvtColor(cv2.imread('templates/' + t['file']), cv2.COLOR_BGR2GRAY)
         else:
-            templates[name] = cv2.imread('templates/' + t['file'])
+            temp['img'] = cv2.imread('templates/' + t['file'])
+
+        templates[name] = temp
     return templates
 

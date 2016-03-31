@@ -1,10 +1,12 @@
-import tkinter
-
 import cv2
 import yaml
-import json
+from easygui import *
+
+import file_utils
 import image_templates as templates
-from gui.MyDialog import MyDialog
+from gui.CvDialog import CvDialog
+# from gui.my_dialogs import LeftClickDialog, RightClickDialog
+from template_matchers import match
 
 GREY_MODE = True
 class Training:
@@ -12,32 +14,20 @@ class Training:
         self.templates = templates.get_templates(GREY_MODE)
 
         self.cap = cv2.VideoCapture('Video 3.mp4')
-        self.method = cv2.TM_SQDIFF_NORMED
-        self.gui_root = tkinter.Tk()
-        self.gui_root.wm_state('iconic')
         self.paused = False
         self.setup_window()
         self.setup_capture()
         _, self.img = self.cap.read()
-
-        with open("training.json") as json_file:
-            self.matches = json.load(json_file)
+        self.matches = file_utils.load_training_json()
         self.matches['break'] = [(50, 50), (100, 50), (50, 100), (100, 100)]
-        with open('training.json', 'w') as outfile:
-            json.dump(obj=self.matches,
-                      fp=outfile,
-                      sort_keys=True,
-                      indent=4,
-                      separators=(',', ': '))
+        self.right_click_dialog = False;
+        self.left_click_dialog = False;
 
     def setup_window(self):
         cv2.namedWindow('image', flags=cv2.WINDOW_KEEPRATIO)
-        cv2.moveWindow('image', 1200, 400)
-        cv2.resizeWindow('image', 600, 400)
-        cv2.setMouseCallback('image', self.onmouse)
-
-        # d = MyDialog(self.gui_root)
-        # self.gui_root.wait_window(d.top)
+        # cv2.moveWindow('image', 1200, 400)
+        # cv2.resizeWindow('image', 600, 400)
+        cv2.setMouseCallback('image', self.on_mouse)
 
     def setup_capture(self):
         config = yaml.load(open('cam_config.yaml', 'r'))['cap']
@@ -53,11 +43,23 @@ class Training:
         self.cap.set(cv2.CAP_PROP_WHITE_BALANCE_BLUE_U, config['white_balance'])
         self.cap.set(cv2.CAP_PROP_ZOOM, config['zoom'])
 
-    def onmouse(self, event, x, y, flags, param):
-        if event == 1:
+    def on_mouse(self, event, x, y, flags, param):
+        if event == 2 and not self.right_click_dialog:
+            choices = multchoicebox(msg='select templates',
+                                    title='selector',
+                                    preselect=-1,
+                                    choices=self.templates.keys())
+
+            for key in self.templates.keys():
+                if choices is not None and key in choices:
+                    self.templates[key]['active'] = True
+                else:
+                    self.templates[key]['active'] = False
+
+        if event == 1 and not self.left_click_dialog:
             print(event, x, y, flags, param)
-            d = MyDialog(self.gui_root)
-            self.gui_root.wait_window(d.top)
+            # d = MyDialog(self.gui_root)
+            # self.gui_root.wait_window(d.top)
         pass
 
     def capture(self):
@@ -68,10 +70,9 @@ class Training:
                     self.img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 else:
                     self.img = frame
-                self.detect()
+                self.detect(image=self.img)
 
             cv2.imshow('image', self.img)
-
             key = cv2.waitKey(33) & 0xFF
             if key == ord('q'):
                 break
@@ -81,36 +82,22 @@ class Training:
 
             elif key == ord('d'):
                 print('detecting')
-                self.detect()
+                self.detect(image=self.img)
         self.cap.release()
         cv2.destroyAllWindows()
 
-
-    def detect(self, image=None):
+    def detect(self, image):
         for name, t in self.templates.items():
-            w, h = t.shape[:2]
-            if image is not None:
-                res = cv2.matchTemplate(image, t, self.method)
-                res_2 = cv2.normalize(res, res, 0, 1, cv2.NORM_MINMAX, -1)
-            else:
-                res = cv2.matchTemplate(self.img, t, self.method)
-                res_2 = cv2.normalize(res, res, 0, 1, cv2.NORM_MINMAX, -1)
-
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res_2)
-
-            # If the method is TM_SQDIFF or TM_SQDIFF_NORMED, take minimum
-            if self.method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
-                top_left = min_loc
-            else:
-                top_left = max_loc
-            bottom_right = (top_left[0] + w, top_left[1] + h)
-            # print(name, 'min_val', min_val, 'max_val', max_val, min_loc, max_loc)
-            if min_val == 0:
-                rec = (top_left, (bottom_right[0], top_left[1]), (top_left[0], bottom_right[1]), bottom_right)
-                self.matches[name] = rec
-                cv2.rectangle(self.img, top_left, bottom_right, 255, 2)
-                cv2.putText(img=self.img, org=top_left, text=name, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=2,
-                            color=(0, 0, 255), thickness=5)
+            if t['active']:
+                template = t['img']
+                rec = match(image=image, template=template)
+                if rec is not None:
+                    cv2.rectangle(self.img, rec[0], rec[3], 255, 2)
+                    cv2.putText(img=self.img, org=rec[0], text=name,
+                                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                fontScale=2,
+                                color=(0, 0, 255),
+                                thickness=5)
 
 
 if __name__ == '__main__':
