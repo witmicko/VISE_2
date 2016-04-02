@@ -8,6 +8,7 @@ import yaml
 from easygui import *
 import file_utils
 import image_templates as templates
+from angles import getAngleBetweenPoints
 from template_matchers import match
 from matplotlib import pyplot as plt
 GREY_MODE = True
@@ -140,7 +141,7 @@ class Training:
                     self.img = frame
                 self.detect(image=self.img)
 
-            self.draw_overlay()
+            # self.draw_overlay()
             if GREY_MODE:
                 rgb = cv2.cvtColor(self.img, cv2.COLOR_GRAY2RGB)
                 # dst = cv2.addWeighted(backtorgb, 0.7, self.overlay, 0.3, 0)
@@ -150,26 +151,29 @@ class Training:
 
 
             img1 = self.img[307:928, 41:656]
-            center = (img1.shape(0)/2, img1.shape(1)/2)
-
+            center = (int(img1.shape[0]/2), int(img1.shape[1]/2))
             lines2 = self.detect_lines_P(img1)
-            if lines2 is not None:
+            if lines2 is not None :
                 a, b, c = lines2.shape
                 for i in range(a):
-                    pt_A = (lines2[i][0][0] + 41, lines2[i][0][1] + 307)
-                    pt_B = (lines2[i][0][2] + 41, lines2[i][0][3] + 307)
-                    # dist = np.math.hypot(x2 - x1, y2 - y1)
+                    pt_A = (lines2[i][0][0], lines2[i][0][1])
+                    pt_B = (lines2[i][0][2], lines2[i][0][3])
+                    cv2.circle(dst, pt_A, 20, (0, 0, 255), 5) #RED
+                    cv2.circle(dst, pt_B, 20, (0, 255, 0), 5) #GREEN
 
-                    # print('A', pt_A)
-                    # print('B', pt_B)
-                    deltaX = pt_B[0] - pt_A[0]
-                    deltaY = pt_B[1] - pt_A[1]
-                    rads = atan2(-deltaY, deltaX)
-                    rads %= 2 * np.pi
-                    degs = np.degrees(rads)
+                    dist_A = np.math.hypot(pt_A[0] - center[0], pt_A[1] - center[1])
+                    dist_B = np.math.hypot(pt_B[0] - center[0], pt_B[1] - center[1])
+                    if dist_A < dist_B:
+                        degs = getAngleBetweenPoints(pt_A, pt_B)
+                    else:
+                        degs = getAngleBetweenPoints(pt_B, pt_A)
+
+                    if degs < 0:
+                        degs += 360
                     print(degs)
                     if degs > 200:
-                        print()
+                        pass
+
                     cv2.line(dst, pt_A, pt_B, (0, 0, 255), 3, cv2.LINE_AA)
 
             cv2.imshow('image', dst)
