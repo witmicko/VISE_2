@@ -38,6 +38,7 @@ class Training:
         _, self.current_frame = self.cap.read()
         _, self.img = self.cap.read()
 
+
         self.matches = {}
         self.right_click_dialog = False
         self.left_click_dialog = False
@@ -82,21 +83,13 @@ class Training:
         if event == 1 and not self.left_click_dialog:
             paused_time = time.time()
             self.left_click_dialog = True
-            xx = self.is_click_inside_rect(x, y)
-            if xx:
-                choice = choicebox(msg='select template detected properly and ready to save as training data',
-                                   choices=xx)
-                led_or_analog = choicebox(msg='LED or analog?', choices=['LED', 'ANALOG'])
-                self.training_data[choice] = {
-                    'type': led_or_analog,
-                    'roi': self.matches[choice]
-                }
-                print(choice)
+            self.training_data_dialog(x, y)
+
             self.left_click_dialog = False
             self.paused_time += time.time() - paused_time
 
-
     def is_click_inside_rect(self, x, y):
+        """Checks if click is inside of any matching template areas"""
         inside_of = []
         for m, rec in self.matches.items():
             if rec is not None:
@@ -109,7 +102,7 @@ class Training:
         return inside_of
 
     def capture(self):
-        # runs main loop and camera
+        """runs main loop and camera"""
         self.start = time.time()
         while self.cap.isOpened():
             if not self.paused:
@@ -123,9 +116,9 @@ class Training:
 
             self.draw_overlay()
             if GREY_MODE:
-                backtorgb = cv2.cvtColor(self.img, cv2.COLOR_GRAY2RGB)
+                rgb = cv2.cvtColor(self.img, cv2.COLOR_GRAY2RGB)
                 # dst = cv2.addWeighted(backtorgb, 0.7, self.overlay, 0.3, 0)
-                dst = cv2.add(backtorgb, self.overlay)
+                dst = cv2.add(rgb, self.overlay)
             else:
                 dst = cv2.addWeighted(self.img, 0.7, self.overlay, 0.3, 0)
 
@@ -135,7 +128,7 @@ class Training:
                 file_utils.save_training_json(self.training_data)
                 end = time.time()
                 durr = end - self.start - self.paused_time
-                print('durr',durr)
+                print('durr', durr)
                 print('paused time', self.paused_time)
                 print('frames', self.frame_count)
                 print('fps', self.frame_count / durr)
@@ -153,7 +146,8 @@ class Training:
         cv2.destroyAllWindows()
 
     def detect(self, image):
-        # detects active templates within the image returns rectangle points starting at top left and going clockwise
+        """Detects active templates within the image and returns
+            rectangle points starting at top left and going clockwise"""
         for name, t in self.templates.items():
             if t['active'] and name not in self.training_data:
                 template = t['img']
@@ -161,6 +155,7 @@ class Training:
                 self.matches[name] = rec
 
     def draw_overlay(self):
+        """Draws overlay with detected templates and training data"""
         self.overlay = self.get_empty_img()
         drawn = []
         for name, data in self.training_data.items():
@@ -179,7 +174,30 @@ class Training:
                             color=(0, 0, 255), thickness=5)
 
     def get_empty_img(self):
+        """Returns empty image with the same size as current capture frame size"""
         return np.zeros((self.res_y, self.res_x, 3), np.uint8)
+
+    def training_data_dialog(self, x, y):
+        xx = self.is_click_inside_rect(x, y)
+        if xx:
+            choice = choicebox(msg='select template detected properly and ready to save as training data',
+                               choices=xx)
+            led_or_analog = choicebox(msg='LED or analog?', choices=['LED', 'ANALOG'])
+            match_rec = self.matches[choice]
+            if 'LED' in led_or_analog:
+                self.training_data[choice] = {
+                    'type': led_or_analog,
+                    'roi': match_rec
+                }
+            elif 'ANALOG' in led_or_analog:
+                # [(1261, 346), (1910, 346), (1261, 966), (1910, 966)]
+                # roi = self.img[346:966, 1261:1910]
+                roi = self.img[match_rec[0][1]:match_rec[3][1], match_rec[0][0]:match_rec[3][0]]
+
+                cv2.imshow('image', roi)
+                cv2.waitKey(0)
+                print(choice)
+
 
 
 if __name__ == '__main__':

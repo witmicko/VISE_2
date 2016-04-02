@@ -12,6 +12,7 @@ def load_training_json():
         c = tuple(roi[2])
         d = tuple(roi[3])
         d_['roi'] = [a, b, c, d]
+        data[name]
 
     return data
 
@@ -20,7 +21,7 @@ def save_training_json(data):
     with open('training.json', 'w') as outfile:
         json.dump(obj=data,
                   fp=outfile,
-                  # sort_keys=True,
-                  # indent=4,
-                  separators=(',', ':')
+                  sort_keys=True,
+                  indent=4,
+                  separators=(',', ":")
                   )
