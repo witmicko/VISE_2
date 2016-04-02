@@ -9,15 +9,15 @@ def nothing(x):
     pass
 
 # Create a black image, a window
-img = cv2.imread('templates/abs_1.png')
-old_L=100
-old_H=200
+img = cv2.imread('../templates/speed.png')
+old_L= 100
+old_H= 200
 canny = cv2.Canny(img, old_L, old_H)
 cv2.namedWindow('image')
 
 # create trackbars for color change
-cv2.createTrackbar('L','image',100,500,nothing)
-cv2.createTrackbar('H','image',200,500,nothing)
+cv2.createTrackbar('L','image',0,1000,nothing)
+cv2.createTrackbar('H','image',0,1000,nothing)
 # switch = '0 : OFF \n1 : ON'
 # cv2.createTrackbar(switch, 'image',0,1,nothing)
 

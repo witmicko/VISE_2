@@ -1,3 +1,4 @@
+from math import atan2
 from threading import Thread
 
 import cv2
@@ -8,7 +9,7 @@ from easygui import *
 import file_utils
 import image_templates as templates
 from template_matchers import match
-
+from matplotlib import pyplot as plt
 GREY_MODE = True
 CAMERA = False
 
@@ -38,10 +39,33 @@ class Training:
         _, self.current_frame = self.cap.read()
         _, self.img = self.cap.read()
 
+        # img = self.img[307:928, 41:656]
+        #
+        # # img = self.img[345:965, 1259:1908]
+        # # edges = cv2.Canny(img, 1, 150, apertureSize=3)
+        # lines = self.detect_lines(img)
+        # for line in lines:
+        #     print(line)
+        #     rho, theta = line[0]
+        #     a = np.cos(theta)
+        #     b = np.sin(theta)
+        #     x0 = a * rho
+        #     y0 = b * rho
+        #     x1 = int(x0 + 200 * (-b))
+        #     y1 = int(y0 + 200 * (a))
+        #     x2 = int(x0 - 200 * (-b))
+        #     y2 = int(y0 - 200 * (a))
+        #     cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+        #
+        # cv2.imshow('image', img)
+        # cv2.waitKey(0)
+        # exit()
 
         self.matches = {}
         self.right_click_dialog = False
         self.left_click_dialog = False
+
+
 
     def setup_window(self):
         cv2.namedWindow('image', flags=cv2.WINDOW_KEEPRATIO)
@@ -65,6 +89,7 @@ class Training:
     def on_mouse(self, event, x, y, flags, param):
         # on right click show simple dialog to select active templates to search for
         if event == 2 and not self.right_click_dialog:
+
             paused_time = time.time()
             self.right_click_dialog = True
             choices = multchoicebox(msg='select templates',
@@ -81,6 +106,7 @@ class Training:
 
         # on left click:
         if event == 1 and not self.left_click_dialog:
+            print(x, y)
             paused_time = time.time()
             self.left_click_dialog = True
             self.training_data_dialog(x, y)
@@ -122,6 +148,30 @@ class Training:
             else:
                 dst = cv2.addWeighted(self.img, 0.7, self.overlay, 0.3, 0)
 
+
+            img1 = self.img[307:928, 41:656]
+            center = (img1.shape(0)/2, img1.shape(1)/2)
+
+            lines2 = self.detect_lines_P(img1)
+            if lines2 is not None:
+                a, b, c = lines2.shape
+                for i in range(a):
+                    pt_A = (lines2[i][0][0] + 41, lines2[i][0][1] + 307)
+                    pt_B = (lines2[i][0][2] + 41, lines2[i][0][3] + 307)
+                    # dist = np.math.hypot(x2 - x1, y2 - y1)
+
+                    # print('A', pt_A)
+                    # print('B', pt_B)
+                    deltaX = pt_B[0] - pt_A[0]
+                    deltaY = pt_B[1] - pt_A[1]
+                    rads = atan2(-deltaY, deltaX)
+                    rads %= 2 * np.pi
+                    degs = np.degrees(rads)
+                    print(degs)
+                    if degs > 200:
+                        print()
+                    cv2.line(dst, pt_A, pt_B, (0, 0, 255), 3, cv2.LINE_AA)
+
             cv2.imshow('image', dst)
             key = cv2.waitKey(33) & 0xFF
             if key == ord('q'):
@@ -144,6 +194,19 @@ class Training:
                 self.detect(image=self.img)
         self.cap.release()
         cv2.destroyAllWindows()
+
+
+    def detect_lines(self, img):
+        (thresh, im_bw) = cv2.threshold(img, 210, 250, cv2.THRESH_BINARY)
+        return cv2.HoughLines(im_bw, 1, np.pi / 180, 190)
+
+    def detect_lines_P(self, img):
+        (thresh, im_bw) = cv2.threshold(img, 210, 250, cv2.THRESH_BINARY)
+        # cv2.imshow('bw', im_bw)
+        # key = cv2.waitKey(33) & 0xFF
+        return cv2.HoughLinesP(im_bw, 1, np.pi / 360.0, 90, minLineLength=180, maxLineGap=0)
+        
+
 
     def detect(self, image):
         """Detects active templates within the image and returns
@@ -177,6 +240,7 @@ class Training:
         """Returns empty image with the same size as current capture frame size"""
         return np.zeros((self.res_y, self.res_x, 3), np.uint8)
 
+
     def training_data_dialog(self, x, y):
         xx = self.is_click_inside_rect(x, y)
         if xx:
@@ -190,11 +254,11 @@ class Training:
                     'roi': match_rec
                 }
             elif 'ANALOG' in led_or_analog:
-                # [(1261, 346), (1910, 346), (1261, 966), (1910, 966)]
-                # roi = self.img[346:966, 1261:1910]
+                # numpy indexing [y1:y2, x1:x2]
+                roi = self.img[345:965, 1259:1908]
                 roi = self.img[match_rec[0][1]:match_rec[3][1], match_rec[0][0]:match_rec[3][0]]
-
-                cv2.imshow('image', roi)
+                laplacian = cv2.Laplacian(roi, cv2.CV_64F)
+                cv2.imshow('image', laplacian)
                 cv2.waitKey(0)
                 print(choice)
 
