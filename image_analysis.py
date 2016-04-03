@@ -14,3 +14,8 @@ def detect_lines_p(img):
     # cv2.imshow('bw', im_bw)
     # key = cv2.waitKey(33) & 0xFF
     return cv2.HoughLinesP(im_bw, 1, np.pi / 360.0, 90, minLineLength=180, maxLineGap=0)
+
+
+def get_empty_img(res_x, res_y):
+    """Returns empty image with the same size as current capture frame size"""
+    return np.zeros((res_y, res_x, 3), np.uint8)

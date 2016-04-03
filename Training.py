@@ -4,6 +4,7 @@ import yaml
 from easygui import *
 import file_utils
 import image_templates as templates
+from AnalogTraining import some_name
 from geometry import *
 from template_matchers import match
 import gui.drawers as ui
@@ -33,31 +34,9 @@ class Training:
         self.templates = templates.get_templates(GREY_MODE)
         self.paused = False
 
-        self.overlay = self.get_empty_img()
+        self.overlay = cv.get_empty_img(self.res_x, self.res_y)
         _, self.current_frame = self.cap.read()
         _, self.img = self.cap.read()
-
-        # img = self.img[307:928, 41:656]
-        #
-        # # img = self.img[345:965, 1259:1908]
-        # # edges = cv2.Canny(img, 1, 150, apertureSize=3)
-        # lines = self.detect_lines(img)
-        # for line in lines:
-        #     print(line)
-        #     rho, theta = line[0]
-        #     a = np.cos(theta)
-        #     b = np.sin(theta)
-        #     x0 = a * rho
-        #     y0 = b * rho
-        #     x1 = int(x0 + 200 * (-b))
-        #     y1 = int(y0 + 200 * (a))
-        #     x2 = int(x0 - 200 * (-b))
-        #     y2 = int(y0 - 200 * (a))
-        #     cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
-        #
-        # cv2.imshow('image', img)
-        # cv2.waitKey(0)
-        # exit()
 
         self.matches = {}
         self.right_click_dialog = False
@@ -67,7 +46,7 @@ class Training:
         cv2.namedWindow('image', flags=cv2.WINDOW_KEEPRATIO)
         cv2.moveWindow('image', 1200, 400)
         cv2.resizeWindow('image', 600, 400)
-        cv2.setMouseCallback('image', self.on_mouse)
+        cv2.setMouseCallback('image', self.on_mouse_main)
 
     def setup_capture(self):
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.res_x)
@@ -82,7 +61,7 @@ class Training:
         self.cap.set(cv2.CAP_PROP_WHITE_BALANCE_BLUE_U, self.config['white_balance'])
         self.cap.set(cv2.CAP_PROP_ZOOM, self.config['zoom'])
 
-    def on_mouse(self, event, x, y, flags, param):
+    def on_mouse_main(self, event, x, y, flags, param):
         # on right click show simple dialog to select active templates to search for
         if event == 2 and not self.right_click_dialog:
 
@@ -136,40 +115,12 @@ class Training:
                     self.img = frame
                 self.detect(image=self.img)
 
-            # self.draw_overlay()
+            self.draw_overlay()
             if GREY_MODE:
                 rgb = cv2.cvtColor(self.img, cv2.COLOR_GRAY2RGB)
                 dst = cv2.add(rgb, self.overlay)
             else:
                 dst = cv2.addWeighted(self.img, 0.7, self.overlay, 0.3, 0)
-
-            img1 = self.img[307:928, 41:656]
-            center = (int(img1.shape[0] / 2) + 41, int(img1.shape[1] / 2) + 307)
-            ui.draw_degree_scale(dst, center, 41, 656)
-            lines = cv.detect_lines_p(img1)
-            if lines is not None:
-                deg = []
-                a, b, c = lines.shape
-                for i in range(a):
-                    pt_a = (lines[i][0][0] + 41, lines[i][0][1] + 307)
-                    pt_b = (lines[i][0][2] + 41, lines[i][0][3] + 307)
-                    cv2.circle(dst, pt_a, 20, (0, 0, 255), 5)  # RED
-                    cv2.circle(dst, pt_b, 20, (0, 255, 0), 5)  # GREEN
-
-                    dist_a = np.math.hypot(pt_a[0] - center[0], pt_a[1] - center[1])
-                    dist_b = np.math.hypot(pt_b[0] - center[0], pt_b[1] - center[1])
-                    if dist_a < dist_b:
-                        degs = get_angle_between_points(center, pt_b)
-                    else:
-                        degs = get_angle_between_points(center, pt_a)
-
-                    deg.append(int(degs))
-                    if degs > 200:
-                        pass
-
-                    cv2.line(dst, pt_a, pt_b, (0, 0, 255), 3, cv2.LINE_AA)
-                    cv2.line(dst, pt_a, pt_b, (0, 0, 255), 3, cv2.LINE_AA)
-                print(deg)
 
             cv2.imshow('image', dst)
             key = cv2.waitKey(33) & 0xFF
@@ -205,7 +156,7 @@ class Training:
 
     def draw_overlay(self):
         """Draws overlay with detected templates and training data"""
-        self.overlay = self.get_empty_img()
+        self.overlay = cv.get_empty_img(self.res_x, self.res_y)
         drawn = []
         for name, data in self.training_data.items():
             rec = data['roi']
@@ -222,17 +173,15 @@ class Training:
                             fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=2,
                             color=(0, 0, 255), thickness=5)
 
-    def get_empty_img(self):
-        """Returns empty image with the same size as current capture frame size"""
-        return np.zeros((self.res_y, self.res_x, 3), np.uint8)
+
 
     def training_data_dialog(self, x, y):
         xx = self.is_click_inside_rect(x, y)
         if xx:
-            choice = choicebox(msg='select template detected properly and ready to save as training data',
-                               choices=xx)
+            choice = choicebox(msg='select template detected properly and ready to save as training data', choices=xx)
             led_or_analog = choicebox(msg='LED or analog?', choices=['LED', 'ANALOG'])
             match_rec = self.matches[choice]
+
             if 'LED' in led_or_analog:
                 self.training_data[choice] = {
                     'type': led_or_analog,
@@ -240,12 +189,18 @@ class Training:
                 }
             elif 'ANALOG' in led_or_analog:
                 # numpy indexing [y1:y2, x1:x2]
-                roi = self.img[345:965, 1259:1908]
-                roi = self.img[match_rec[0][1]:match_rec[3][1], match_rec[0][0]:match_rec[3][0]]
-                laplacian = cv2.Laplacian(roi, cv2.CV_64F)
-                cv2.imshow('image', laplacian)
-                cv2.waitKey(0)
-                print(choice)
+                # roi = self.img[match_rec[0][1]:match_rec[3][1], match_rec[0][0]:match_rec[3][0]]
+                # center = (int(roi.shape[0] / 2) + match_rec[0][0], int(roi.shape[1] / 2) + match_rec[0][1])
+                # lines = cv.detect_lines_p(roi)
+                # degs = get_line_degrees(lines, match_rec, center)
+                # ui.draw_degree_scale(self.img, center, match_rec[0][0], match_rec[3][0])
+                some_name(match_rec, self.img)
+
+                # cv2.waitKey(0)
+                # print(choice)
+
+
+
 
 if __name__ == '__main__':
     training = Training()
