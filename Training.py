@@ -4,10 +4,9 @@ import yaml
 from easygui import *
 import file_utils
 import image_templates as templates
-from AnalogTraining import some_name
+from AnalogTraining import AnalogTraining
 from geometry import *
 from template_matchers import match
-import gui.drawers as ui
 import image_analysis as cv
 GREY_MODE = True
 CAMERA = False
@@ -76,6 +75,9 @@ class Training:
                     self.templates[key]['active'] = True
                 else:
                     self.templates[key]['active'] = False
+                    if key in self.matches.keys():
+                        self.matches.pop(key)
+
             self.right_click_dialog = False
             self.paused_time += time.time() - paused_time
 
@@ -173,8 +175,6 @@ class Training:
                             fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=2,
                             color=(0, 0, 255), thickness=5)
 
-
-
     def training_data_dialog(self, x, y):
         xx = self.is_click_inside_rect(x, y)
         if xx:
@@ -188,19 +188,14 @@ class Training:
                     'roi': match_rec
                 }
             elif 'ANALOG' in led_or_analog:
-                # numpy indexing [y1:y2, x1:x2]
-                # roi = self.img[match_rec[0][1]:match_rec[3][1], match_rec[0][0]:match_rec[3][0]]
-                # center = (int(roi.shape[0] / 2) + match_rec[0][0], int(roi.shape[1] / 2) + match_rec[0][1])
-                # lines = cv.detect_lines_p(roi)
-                # degs = get_line_degrees(lines, match_rec, center)
-                # ui.draw_degree_scale(self.img, center, match_rec[0][0], match_rec[3][0])
-                some_name(match_rec, self.img)
-
-                # cv2.waitKey(0)
-                # print(choice)
-
-
-
+                self.paused = True
+                data = AnalogTraining(match_rec, self.img).run()
+                self.training_data[choice] = {
+                    'type': led_or_analog,
+                    'roi': match_rec,
+                    'data': data
+                }
+                self.paused = False
 
 if __name__ == '__main__':
     training = Training()

@@ -25,3 +25,10 @@ if lines is not None:
         cv2.line(dst, pt_a, pt_b, (0, 0, 255), 3, cv2.LINE_AA)
         cv2.line(dst, pt_a, pt_b, (0, 0, 255), 3, cv2.LINE_AA)
     print(deg)
+
+
+
+
+    {
+
+    }

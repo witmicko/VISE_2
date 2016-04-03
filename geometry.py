@@ -29,9 +29,12 @@ def get_line_degrees(lines, match_rec, center, img=None):
 
             dist_a = np.math.hypot(pt_a[0] - center[0], pt_a[1] - center[1])
             dist_b = np.math.hypot(pt_b[0] - center[0], pt_b[1] - center[1])
+            # todo check which points to use
             if dist_a < dist_b:
+                # deg = get_angle_between_points(pt_a, pt_b)
                 deg = get_angle_between_points(center, pt_b)
             else:
+                # deg = get_angle_between_points(pt_b, pt_a)
                 deg = get_angle_between_points(center, pt_a)
 
             degs.append(int(deg))
