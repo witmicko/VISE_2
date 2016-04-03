@@ -1,16 +1,13 @@
-from math import atan2
-from threading import Thread
-
 import cv2
-import numpy as np
 import time
 import yaml
 from easygui import *
 import file_utils
 import image_templates as templates
-from angles import getAngleBetweenPoints
+from geometry import *
 from template_matchers import match
-from matplotlib import pyplot as plt
+import gui.drawers as ui
+import image_analysis as cv
 GREY_MODE = True
 CAMERA = False
 
@@ -65,8 +62,6 @@ class Training:
         self.matches = {}
         self.right_click_dialog = False
         self.left_click_dialog = False
-
-
 
     def setup_window(self):
         cv2.namedWindow('image', flags=cv2.WINDOW_KEEPRATIO)
@@ -149,32 +144,34 @@ class Training:
             else:
                 dst = cv2.addWeighted(self.img, 0.7, self.overlay, 0.3, 0)
 
-
             img1 = self.img[307:928, 41:656]
-            center = (int(img1.shape[0]/2), int(img1.shape[1]/2))
-            lines2 = self.detect_lines_P(img1)
-            if lines2 is not None :
-                a, b, c = lines2.shape
+            center = (int(img1.shape[0] / 2) + 41, int(img1.shape[1] / 2) + 307)
+            ui.draw_degree_scale(dst, center, 41, 656)
+            lines = cv.detect_lines_P(img1)
+            if lines is not None:
+                deg = []
+                a, b, c = lines.shape
                 for i in range(a):
-                    pt_A = (lines2[i][0][0], lines2[i][0][1])
-                    pt_B = (lines2[i][0][2], lines2[i][0][3])
-                    cv2.circle(dst, pt_A, 20, (0, 0, 255), 5) #RED
-                    cv2.circle(dst, pt_B, 20, (0, 255, 0), 5) #GREEN
+                    pt_A = (lines[i][0][0] + 41, lines[i][0][1] + 307)
+                    pt_B = (lines[i][0][2] + 41, lines[i][0][3] + 307)
+                    cv2.circle(dst, pt_A, 20, (0, 0, 255), 5)  # RED
+                    cv2.circle(dst, pt_B, 20, (0, 255, 0), 5)  # GREEN
 
                     dist_A = np.math.hypot(pt_A[0] - center[0], pt_A[1] - center[1])
                     dist_B = np.math.hypot(pt_B[0] - center[0], pt_B[1] - center[1])
                     if dist_A < dist_B:
-                        degs = getAngleBetweenPoints(pt_A, pt_B)
+                        degs = get_angle_between_points(center, pt_B)
                     else:
-                        degs = getAngleBetweenPoints(pt_B, pt_A)
-
+                        degs = get_angle_between_points(center, pt_A)
                     if degs < 0:
                         degs += 360
-                    print(degs)
+                    deg.append(int(degs))
                     if degs > 200:
                         pass
 
                     cv2.line(dst, pt_A, pt_B, (0, 0, 255), 3, cv2.LINE_AA)
+                    cv2.line(dst, pt_A, pt_B, (0, 0, 255), 3, cv2.LINE_AA)
+                print(deg)
 
             cv2.imshow('image', dst)
             key = cv2.waitKey(33) & 0xFF
@@ -198,19 +195,6 @@ class Training:
                 self.detect(image=self.img)
         self.cap.release()
         cv2.destroyAllWindows()
-
-
-    def detect_lines(self, img):
-        (thresh, im_bw) = cv2.threshold(img, 210, 250, cv2.THRESH_BINARY)
-        return cv2.HoughLines(im_bw, 1, np.pi / 180, 190)
-
-    def detect_lines_P(self, img):
-        (thresh, im_bw) = cv2.threshold(img, 210, 250, cv2.THRESH_BINARY)
-        # cv2.imshow('bw', im_bw)
-        # key = cv2.waitKey(33) & 0xFF
-        return cv2.HoughLinesP(im_bw, 1, np.pi / 360.0, 90, minLineLength=180, maxLineGap=0)
-        
-
 
     def detect(self, image):
         """Detects active templates within the image and returns
@@ -244,7 +228,6 @@ class Training:
         """Returns empty image with the same size as current capture frame size"""
         return np.zeros((self.res_y, self.res_x, 3), np.uint8)
 
-
     def training_data_dialog(self, x, y):
         xx = self.is_click_inside_rect(x, y)
         if xx:
@@ -265,8 +248,6 @@ class Training:
                 cv2.imshow('image', laplacian)
                 cv2.waitKey(0)
                 print(choice)
-
-
 
 if __name__ == '__main__':
     training = Training()
