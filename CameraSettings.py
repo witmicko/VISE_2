@@ -1,9 +1,6 @@
 import cv2
-import atexit
 import yaml
-
-from subprocess import call, check_output
-
+# noinspection PyPep8Naming
 
 class CameraSettings:
     def __init__(self, captureObject):
@@ -23,25 +20,32 @@ class CameraSettings:
         self.cap.set(cv2.CAP_PROP_WHITE_BALANCE_BLUE_U, config['white_balance'])
         self.cap.set(cv2.CAP_PROP_ZOOM, config['zoom'])
 
-    def getFocus(self):
+    @staticmethod
+    def getFocus():
         return int(cap.get(cv2.CAP_PROP_FOCUS))
 
-    def getContrast(self):
+    @staticmethod
+    def getContrast():
         return int(cap.get(cv2.CAP_PROP_CONTRAST))
 
-    def getBrightness(self):
+    @staticmethod
+    def getBrightness():
         return int(cap.get(cv2.CAP_PROP_BRIGHTNESS))
 
-    def getSaturation(self):
+    @staticmethod
+    def getSaturation():
         return int(cap.get(cv2.CAP_PROP_SATURATION))
 
-    def getHue(self):
+    @staticmethod
+    def getHue():
         return int(cap.get(cv2.CAP_PROP_HUE))
 
-    def getGain(self):
+    @staticmethod
+    def getGain():
         return int(cap.get(cv2.CAP_PROP_GAIN))
 
-    def getWhiteBalance(self):
+    @staticmethod
+    def getWhiteBalance():
         return int(cap.get(cv2.CAP_PROP_WHITE_BALANCE_RED_V))
 
     def setFocus(self, arg):
@@ -103,7 +107,8 @@ class CameraSettings:
         yaml.dump(settings, stream, default_flow_style=False)
         print(yaml.dump(settings))
 
-    def trackbar(self, windowName, trackbarName, callback, start=128, max=255):
+    @staticmethod
+    def trackbar(windowName, trackbarName, callback, start=128, max=255):
         cv2.namedWindow(windowName)
         cv2.createTrackbar(trackbarName, windowName, start, max, callback)
 
@@ -125,7 +130,7 @@ if __name__ == "__main__":
 
     while camSettings.cap.isOpened:
         _, image = camSettings.cap.read()
-        small = cv2.resize(image, (0, 0), fx=0.25, fy=0.25, interpolation=cv2.INTER_AREA )
+        small = cv2.resize(image, (0, 0), fx=0.25, fy=0.25, interpolation=cv2.INTER_AREA)
         cv2.imshow("window2", small)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             camSettings.save()

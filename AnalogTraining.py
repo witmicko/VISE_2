@@ -1,9 +1,7 @@
 import cv2
 from easygui import integerbox
+from geometry import get_angle_between_points
 
-from geometry import get_line_degrees, get_angle_between_points
-import image_analysis as cv
-import gui.drawers as ui
 
 class AnalogTraining:
     def __init__(self, match_rec, img):
@@ -45,8 +43,9 @@ class AnalogTraining:
         # print(deg)
         if event == cv2.EVENT_LBUTTONDOWN:
             deg = int(get_angle_between_points(self.center, (x, y)))
+            deg_plus_90 = (deg + 90)%360
             i = integerbox(msg="enter value", title='analog trainer', lowerbound=0, upperbound=9999)
-            self.training_data.append({'degree': deg, 'value': i})
+            self.training_data.append({'degree': deg_plus_90, 'value': i})
 
 
 

@@ -12,8 +12,6 @@ def load_training_json():
         c = tuple(roi[2])
         d = tuple(roi[3])
         d_['roi'] = [a, b, c, d]
-        data[name]
-
     return data
 
 
