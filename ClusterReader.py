@@ -98,7 +98,7 @@ class ClusterReader:
                             color=color, thickness=5)
                 y += 50
             cv2.imshow('image', dst)
-            key = cv2.waitKey(33) & 0xFF
+            key = cv2.waitKey(1) & 0xFF
             if key == ord('q'):
                 end = time.time()
                 durr = end - self.start - self.paused_time
@@ -114,6 +114,7 @@ class ClusterReader:
                 self.paused_time += time.time() - paused_time
             elif key == ord('a'):
                 self.analyse()
+
         self.cap.release()
         cv2.destroyAllWindows()
 
