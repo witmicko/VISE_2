@@ -254,10 +254,7 @@ class candriver(object):
 
     def receive(self, port_handle, event_count, event_list):
         self.candll.xlReceive.argtypes = [XLporthandle, ctypes.POINTER(ctypes.c_uint), ctypes.POINTER(XLevent)]
-        # ev=XLevent(0)
-        # print port_handle, event_count, event_list
         ok = self.candll.xlReceive(port_handle, ctypes.byref(event_count), ctypes.byref(event_list))
-        # print event_list
         return ok
 
     def get_event_string(self, ev):
