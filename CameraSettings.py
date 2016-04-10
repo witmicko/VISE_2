@@ -8,7 +8,7 @@ class CameraSettings:
         self.setup_capture()
 
     def setup_capture(self):
-        config = yaml.load(open('cam_config.yaml', 'r'))['cap']
+        config = yaml.load(open('settings/cam_config.yaml', 'r'))['cap']
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, config['res_x'])
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config['res_y'])
         self.cap.set(cv2.CAP_PROP_BRIGHTNESS, config['brightness'])
@@ -103,7 +103,7 @@ class CameraSettings:
                 'res_y': 1080
             }
         }
-        stream = open('cam_config.yaml', 'w')
+        stream = open('settings/cam_config.yaml', 'w')
         yaml.dump(settings, stream, default_flow_style=False)
         print(yaml.dump(settings))
 

@@ -1,19 +1,21 @@
 import time
+
 import yaml
-from easygui import *
-import file_utils
-import image_templates as templates
-from AnalogTraining import AnalogTraining
-from geometry import *
-from template_matchers import match
-from matplotlib import pyplot as plt
-import image_analysis as cv
+
+from CanDriver import CanDriver
+from image_processing.geometry import *
+from image_processing import image_analysis as cv
+from utils import file_utils
+
 GREY_MODE = True
 CAMERA    = False
 
 
 class ClusterReader:
     def __init__(self):
+        can = CanDriver()
+        self.can_bus = can if can.valid_setup else None
+
         self.frame_count = 0
         self.start = None
         self.paused_time = 0
@@ -119,7 +121,6 @@ class ClusterReader:
         cv2.destroyAllWindows()
 
 
-
     def draw_overlay(self):
         """Draws overlay with detected templates and training data"""
         self.overlay = cv.get_empty_img(self.res_x, self.res_y)
@@ -135,7 +136,7 @@ class ClusterReader:
             roi = data['roi']
             img = self.img[roi[0][1]:roi[3][1], roi[0][0]:roi[3][0]]
             _, im_bw = cv2.threshold(img, 150, 250, cv2.THRESH_BINARY)
-
+            value = 0
             if data['type'] == 'LED':
                 white, black, total = 0, 0, 0
                 for x in np.nditer(im_bw):
@@ -145,9 +146,9 @@ class ClusterReader:
                     else:
                         white += 1
                 if white >= total * 0.25:
-                    self.current_state[name] = True
+                    value = 1
                 else:
-                    self.current_state[name] = False
+                    value = 0
             elif data['type'] == 'ANALOG':
                 center = (int(img.shape[0] / 2), int(img.shape[1] / 2))
                 lines = cv.detect_lines_p(im_bw)
@@ -162,11 +163,10 @@ class ClusterReader:
                         xp.append(d['degree']*1.0)
                         fp.append(d['value']*1.0)
                     avg_deg = np.mean(degs)
-                    interpolated = np.interp(avg_deg*1.0, xp=xp, fp=fp, period=360)
-                    if name == 'REVS':
-                        self.current_state[name] = int(interpolated * 1000)
-                    else:
-                        self.current_state[name] = int(interpolated)
+                    interpolated = np.interp(avg_deg * 1.0, xp=xp, fp=fp, period=360)
+                    value = int(interpolated * 1000) if name == 'REVS' else int(interpolated)
+            self.current_state[name] = value
+            self.can_bus.transmit(name, value)
 
 
     def build_initial_state(self):

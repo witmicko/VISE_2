@@ -1,6 +1,7 @@
 import cv2
 from easygui import integerbox
-from geometry import get_angle_between_points
+
+from image_processing.geometry import get_angle_between_points
 
 
 class AnalogTraining:

@@ -9,10 +9,11 @@ XLaccess = XLuint64
 XLstatus = ctypes.c_short
 XLporthandle = ctypes.c_long
 
-XL_HWTYPE_NONE = 0
 XL_ACTIVATE_RESET_CLOCK = 8
+XL_HWTYPE_NONE = 0
 XL_HWTYPE_VIRTUAL = 1
 XL_HWTYPE_CANCARDXL = 15
+XL_HWTYPE_CANCASEXL = 21
 
 XL_BUS_TYPE_NONE = 0
 XL_BUS_TYPE_CAN = 1
@@ -143,6 +144,30 @@ class s_xl_event(ctypes.Structure):
 
 XLevent = s_xl_event
 
+xl_response_codes ={
+    '0': "XL_SUCCESS",
+    '10': "XL_ERR_QUEUE_IS_EMPTY",
+    '11': "XL_ERR_QUEUE_IS_FULL",
+    '12': "XL_ERR_TX_NOT_POSSIBLE",
+    '14': "XL_ERR_NO_LICENSE",
+    '101': "XL_ERR_WRONG_PARAMETER",
+    '111': "XL_ERR_INVALID_CHAN_INDEX",
+    '112': "XL_ERR_INVALID_ACCESS",
+    '113': "XL_ERR_PORT_IS_OFFLINE",
+    '116': "XL_ERR_CHAN_IS_ONLINE",
+    '117': "XL_ERR_NOT_IMPLEMENTED",
+    '118': "XL_ERR_INVALID_PORT",
+    '120': "XL_ERR_HW_NOT_READY",
+    '121': "XL_ERR_CMD_TIMEOUT",
+    '129': "XL_ERR_HW_NOT_PRESENT",
+    '158': "XL_ERR_INIT_ACCESS_MISSING",
+    '201': "XL_ERR_CANNOT_OPEN_DRIVER",
+    '202': "XL_ERR_WRONG_BUS_TYPE",
+    '203': "XL_ERR_DLL_NOT_FOUND",
+    '204': "XL_ERR_INVALID_CHANNEL_MASK",
+    '205': "XL_ERR_NOT_SUPPORTED",
+    '255': "XL_ERROR"
+}
 
 class candriver(object):
     def __init__(self):
@@ -263,6 +288,14 @@ class candriver(object):
         err_string = self.candll.xlGetErrorString(err)
         return str(err_string)
 
+
+def get_device_id_by_type(device_type):
+    devices = {
+        'NONE': 0,
+        'VIRTUAL': 1,
+        'CANCARDXL': 15,
+        'CANCASEXL': 21}
+    return devices[device_type]
 
 class can_api(object):
     def __init__(self):

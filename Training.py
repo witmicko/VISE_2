@@ -1,12 +1,15 @@
 import time
+
+import image_processing.image_templates as templates
+from image_processing.template_matchers import match
+from image_processing.AnalogTraining    import AnalogTraining
+from image_processing.geometry          import *
+from image_processing import image_analysis as cv
 import yaml
 from easygui import *
-import file_utils
-import image_templates as templates
-from AnalogTraining import AnalogTraining
-from geometry import *
-from template_matchers import match
-import image_analysis as cv
+
+from utils import file_utils
+
 GREY_MODE = True
 CAMERA    = False
 

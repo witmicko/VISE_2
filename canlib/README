@@ -1,0 +1,5 @@
+Package imported from: https://code.google.com/archive/p/pycanlibxl/
+It was only partial basic wrapper for Vector XL library built for Python 2.
+I've had to make it compatibile with Python 3.5 and also adapt it for changes in newer ctypes.
+On top of it it was missing VIRTUAL CAN support,
+I've added it with guide of the header files of the original Vector XL library.

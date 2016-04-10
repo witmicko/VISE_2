@@ -13,11 +13,11 @@ if __name__ == "__main__":
     can = canlib_xl.candriver()
     can.open_driver()
     mask = can.get_channel_mask(hwtype=canlib_xl.XL_HWTYPE_VIRTUAL)
-    # ok, phandle, pmask = can.open_port(user_name='VISEapp')
-    ok, phandle, pmask = can.open_port(user_name='VISE',
-                                       # access_mask=mask,
-                                       bus_type=canlib_xl.XL_BUS_TYPE_CAN
-                                       )
+    ok, phandle, pmask = can.open_port()
+    # ok, phandle, pmask = can.open_port(user_name='VISE',
+    #                                    access_mask=mask,
+    #                                    bus_type=canlib_xl.XL_BUS_TYPE_CAN
+    #                                    )
 
     # print(ok)
     ok = can.can_set_channel_bitrate(phandle, mask, 500000)
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     # print event_list
     event_count = ctypes.c_ulong(1)
-    pi = pointer(event_count)
+    # pi = pointer(event_count)
     ok = can.can_transmit(phandle, mask, event_count, event_msg)
     print(ok, event_msg)
     # ok = 1

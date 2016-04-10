@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from geometry import get_point_at_circle
+from image_processing.geometry import get_point_at_circle
 
 
 def put_angle_text(img, point, offset_x, offset_y, text):
