@@ -24,7 +24,7 @@ class Training:
             self.cap = cv2.VideoCapture(0)
             self.setup_capture()
         else:
-            self.cap = cv2.VideoCapture('Video 3.mp4')
+            self.cap = cv2.VideoCapture('Video 4.mp4')
             self.res_x = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
             self.res_y = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         self.setup_window()

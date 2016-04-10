@@ -14,18 +14,18 @@ class AnalogTraining:
     def run(self):
         cv2.namedWindow('ANALOG', flags=cv2.WINDOW_KEEPRATIO)
         cv2.moveWindow('ANALOG', 1200, 400)
-        cv2.resizeWindow('ANALOG', 600, 400)
+        cv2.resizeWindow('ANALOG', 1280, 720)
         cv2.setMouseCallback('ANALOG', self.on_mouse)
         x_offset = 0
         y_offset = 0
         while True:
             image = self.img.copy()
             text = 'Press "e" to exit and save, "r" to reset current data'
-            cv2.putText(image, text, (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 5, cv2.LINE_AA)
+            cv2.putText(image, text, (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 5, cv2.LINE_AA)
             h = 150
             for t in self.training_data:
                 txt = "deg {0}, value: {1}".format(t['degree'], t['value'])
-                cv2.putText(image, txt, (100, h), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 5, cv2.LINE_AA)
+                cv2.putText(image, txt, (100, h), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 5, cv2.LINE_AA)
                 h += 50
 
             cv2.imshow('ANALOG', image)

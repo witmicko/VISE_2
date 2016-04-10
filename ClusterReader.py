@@ -24,7 +24,7 @@ class ClusterReader:
             self.cap = cv2.VideoCapture(0)
             self.setup_capture()
         else:
-            self.cap = cv2.VideoCapture('Video 3.mp4')
+            self.cap = cv2.VideoCapture('Video 4.mp4')
             self.res_x = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
             self.res_y = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         self.setup_window()
@@ -43,8 +43,8 @@ class ClusterReader:
         # cv2.moveWindow('prev', 1200, 400)
         # cv2.resizeWindow('prev', 600, 400)
         cv2.namedWindow('image', flags=cv2.WINDOW_KEEPRATIO)
-        cv2.moveWindow('image', 1200, 400)
-        cv2.resizeWindow('image', 600, 400)
+        cv2.moveWindow('image', 600, 200)
+        cv2.resizeWindow('image', 1280, 720)
         cv2.setMouseCallback('image', self.on_mouse_main)
 
     def setup_capture(self):
@@ -82,21 +82,21 @@ class ClusterReader:
                 else:
                     self.img = frame
                 self.analyse()
-                # self.draw_overlay()
+                self.draw_overlay()
 
             if GREY_MODE:
                 rgb = cv2.cvtColor(self.img, cv2.COLOR_GRAY2RGB)
                 dst = cv2.add(rgb, self.overlay)
             else:
                 dst = cv2.addWeighted(self.img, 0.7, self.overlay, 0.3, 0)
-            y = 50
+            y = 25
             for name, data in self.current_state.items():
                 color = (0, 255, 0) if data else (0, 0, 255)
                 txt = "{0}: {1}".format(name, data)
-                cv2.putText(img=dst, org=(50, y), text=txt,
-                            fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=2,
-                            color=color, thickness=5)
-                y += 50
+                cv2.putText(img=dst, org=(700, y), text=txt,
+                            fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1,
+                            color=color, thickness=2, lineType=cv2.LINE_AA)
+                y += 30
             cv2.imshow('image', dst)
             key = cv2.waitKey(1) & 0xFF
             if key == ord('q'):
@@ -127,14 +127,15 @@ class ClusterReader:
             rec = data['roi']
             cv2.rectangle(self.overlay, rec[0], rec[3], (0, 255, 255), 3)
             cv2.putText(img=self.overlay, org=rec[0], text=name,
-                        fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=2,
-                        color=(0, 255, 0), thickness=5)
+                        fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1,
+                        color=(0, 255, 0), thickness=3, lineType=cv2.LINE_AA)
 
     def analyse(self):
         for name, data in self.training_data.items():
             roi = data['roi']
             img = self.img[roi[0][1]:roi[3][1], roi[0][0]:roi[3][0]]
-            _, im_bw = cv2.threshold(img, 210, 250, cv2.THRESH_BINARY)
+            _, im_bw = cv2.threshold(img, 150, 250, cv2.THRESH_BINARY)
+
             if data['type'] == 'LED':
                 white, black, total = 0, 0, 0
                 for x in np.nditer(im_bw):
@@ -150,7 +151,7 @@ class ClusterReader:
             elif data['type'] == 'ANALOG':
                 center = (int(img.shape[0] / 2), int(img.shape[1] / 2))
                 lines = cv.detect_lines_p(im_bw)
-                degs = get_line_degrees_2(lines, center)
+                degs = get_line_degrees(lines, center)
                 if degs is not None:
                     values_data = data['data']
                     xp = []
@@ -162,7 +163,10 @@ class ClusterReader:
                         fp.append(d['value']*1.0)
                     avg_deg = np.mean(degs)
                     interpolated = np.interp(avg_deg*1.0, xp=xp, fp=fp, period=360)
-                    self.current_state[name] = interpolated
+                    if name == 'REVS':
+                        self.current_state[name] = int(interpolated * 1000)
+                    else:
+                        self.current_state[name] = int(interpolated)
 
 
     def build_initial_state(self):
