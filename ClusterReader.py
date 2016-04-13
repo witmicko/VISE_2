@@ -8,7 +8,7 @@ from image_processing import image_analysis as cv
 from utils import file_utils
 
 GREY_MODE = True
-CAMERA    = False
+CAMERA    = True
 
 
 class ClusterReader:
@@ -20,7 +20,7 @@ class ClusterReader:
         self.start = None
         self.paused_time = 0
         if CAMERA:
-            self.config = yaml.load(open('cam_config.yaml', 'r'))['cap']
+            self.config = yaml.load(open('settings/cam_config.yaml', 'r'))['cap']
             self.res_x = self.config['res_x']
             self.res_y = self.config['res_y']
             self.cap = cv2.VideoCapture(0)

@@ -1,6 +1,7 @@
 from easygui import choicebox, integerbox, multenterbox
 
 from utils.file_utils import load_can_bus_json, save_can_bus_json, load_training_json
+# todo add vn8910, fix preselc bugs
 
 if __name__ == "__main__":
     settings = load_can_bus_json()
@@ -8,7 +9,11 @@ if __name__ == "__main__":
     msg = "Which device is used to communicate with CAN bus?"
     title = "Device"
     choices = ["VIRTUAL", "CANCARDXL", "CANCASEXL"]
-    device_choice = choicebox(msg, title, choices, preselect=choices.index(settings['device']))
+    preselect = 0
+    if 'device' in settings:
+        preselect = choices.index(settings['device'])
+
+    device_choice = choicebox(msg, title, choices, preselect=preselect)
     #
     # # Baud rate select
     msg = "Select baud rate to be used."
