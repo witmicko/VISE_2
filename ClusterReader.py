@@ -8,7 +8,7 @@ from image_processing import image_analysis as cv
 from utils import file_utils
 
 GREY_MODE = True
-CAMERA    = True
+CAMERA    = False
 
 
 class ClusterReader:

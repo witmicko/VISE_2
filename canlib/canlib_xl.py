@@ -287,10 +287,42 @@ class candriver(object):
 
 
 def get_device_id_by_type(device_type):
-    devices = {
-        'NONE': 0,
-        'VIRTUAL': 1,
-        'CANCARDXL': 15,
-        'CANCASEXL': 21}
     return devices[device_type]
 
+
+devices = {
+    'NONE': 0,
+    'VIRTUAL': 1,
+    'CANCARDX': 2,
+    'CANAC2PCI': 6,
+    'CANCARDY': 12,
+    'CANCARDXL': 15,
+    'CANCASEXL': 21,
+    'CANCASEXL_LOG_OBSOLETE': 23,
+    'CANBOARDXL': 25,
+    'CANBOARDXL_PXI': 27,
+    'VN2600': 29,
+    'VN2610': 29,
+    'VN3300': 37,
+    'VN3600': 39,
+    'VN7600': 41,
+    'CANCARDXLE': 43,
+    'VN8900': 45,
+    'VN8950': 47,
+    'VN2640': 53,
+    'VN1610': 55,
+    'VN1630': 57,
+    'VN1640': 59,
+    'VN8970': 61,
+    'VN1611': 63,
+    'VN5610': 65,
+    'VN7570': 67,
+    'IPCLIENT': 69,
+    'IPSERVER': 71,
+    'VX1121': 73,
+    'VX1131': 75,
+    'VT6204': 77,
+    'XL_MAX_HWTYPE': 81}
+
+def get_device_id_by_type(device_type):
+    return devices[device_type]

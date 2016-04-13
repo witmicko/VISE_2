@@ -1,5 +1,5 @@
-from easygui import choicebox, integerbox, multenterbox
-
+from easygui import *
+from canlib import canlib_xl
 from utils.file_utils import load_can_bus_json, save_can_bus_json, load_training_json
 # todo add vn8910, fix preselc bugs
 
@@ -8,28 +8,35 @@ if __name__ == "__main__":
     # Device select
     msg = "Which device is used to communicate with CAN bus?"
     title = "Device"
-    choices = ["VIRTUAL", "CANCARDXL", "CANCASEXL"]
+    choices = sorted(canlib_xl.devices.keys())
     preselect = 0
     if 'device' in settings:
         preselect = choices.index(settings['device'])
-
     device_choice = choicebox(msg, title, choices, preselect=preselect)
-    #
+
+
     # # Baud rate select
     msg = "Select baud rate to be used."
     title = "Baud rate"
     choices = ["125 kbps", "250 kbps", "500 kbps", "1000 kbps"]
-    baud_rate_choice = choicebox(msg, title, choices,
-                                 preselect=choices.index(str(settings['baud_rate']) + ' kbps'))
+
+    from easygui import choicebox, integerbox, multenterbox
+
+    preselect = 2
+    if 'baud_rate' in settings:
+        preselect = choices.index(str(settings['baud_rate']) + ' kbps')
+    baud_rate_choice = choicebox(msg, title, choices, preselect=preselect)
 
     # search for lower ID and set it as start_id
+    start_id = -1
+    trained_messages = None
     if 'messages' in settings:
         trained_messages = settings['messages']
         start_id = 2049
         for name, data in trained_messages.items():
             start_id = data['id'] if data['id'] <= start_id else start_id
     # get user input otherwise
-    if start_id is None:
+    if start_id == -1:
         msg = "Type in start ID for VISE messages"
         title = "Start ID"
         start_id = integerbox(msg="enter value", title=title, lowerbound=1, upperbound=2048)
