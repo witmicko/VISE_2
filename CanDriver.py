@@ -5,6 +5,19 @@ from canlib.canlib_xl import candriver, get_device_id_by_type
 from utils.file_utils import load_can_bus_json
 
 
+def build_message(tx_id, data, dlc):
+    event_msg = canlib_xl.XLevent(0)
+    event_msg.tag = canlib_xl.XL_TRANSMIT_MSG
+    event_msg.tagData.msg.id = tx_id
+    event_msg.tagData.msg.flags = 0
+
+    data_bytes = data.to_bytes(dlc, byteorder='big')
+    for i in range(len(data_bytes)):
+        event_msg.tagData.msg.data[i] = data_bytes[i]
+    event_msg.tagData.msg.dlc = dlc
+    return event_msg
+
+
 class CanDriver:
     def __init__(self):
         settings = load_can_bus_json()
@@ -33,29 +46,15 @@ class CanDriver:
     def transmit_on_bus(self, message):
         event_count = ctypes.c_ulong(1)
         ok = self.can.can_transmit(self.phandle, self.mask, event_count, message)
-        rec_string = self.can.get_event_string(message)
-        print('transmit:', canlib_xl.xl_response_codes[str(ok)], ", msg:", rec_string)
+        # rec_string = self.can.get_event_string(message)
+        # print('transmit:', canlib_xl.xl_response_codes[str(ok)], ", msg:", rec_string)
 
     def transmit(self, name, value):
         tx_id = self.messages[name]['id']
         dlc   = self.messages[name]['dlc']
-        msg = self.build_message(tx_id, value, dlc)
+        msg = build_message(tx_id, value, dlc)
         self.transmit_on_bus(message=msg)
-        print(name, value)
-
-
-    def build_message(self, tx_id, data, dlc):
-        event_msg = canlib_xl.XLevent(0)
-        event_msg.tag = canlib_xl.XL_TRANSMIT_MSG
-        event_msg.tagData.msg.id = tx_id
-        event_msg.tagData.msg.flags = 0
-
-        bytes = data.to_bytes(dlc, byteorder='big')
-        for i in range(len(bytes)):
-            event_msg.tagData.msg.data[i] = bytes[i]
-        event_msg.tagData.msg.dlc = dlc
-        return event_msg
-
+        # print(name, value)
 
     @staticmethod
     def get_test_message():
@@ -80,5 +79,3 @@ if __name__ == "__main__":
     if can.valid_setup:
         msg = can.get_test_message()
         can.transmit(msg)
-
-    print()
