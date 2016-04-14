@@ -11,7 +11,7 @@ from easygui import *
 from utils import file_utils
 
 GREY_MODE = True
-CAMERA    = False
+CAMERA    = True
 
 
 class Training:
@@ -21,7 +21,7 @@ class Training:
         self.start = None
         self.paused_time = 0
         if CAMERA:
-            self.config = yaml.load(open('cam_config.yaml', 'r'))['cap']
+            self.config = yaml.load(open('settings/cam_config.yaml', 'r'))['cap']
             self.res_x = self.config['res_x']
             self.res_y = self.config['res_y']
             self.cap = cv2.VideoCapture(0)
@@ -46,7 +46,7 @@ class Training:
 
     def setup_window(self):
         cv2.namedWindow('image', flags=cv2.WINDOW_KEEPRATIO)
-        cv2.moveWindow('image', 1200, 400)
+        cv2.moveWindow('image', 600, 200)
         cv2.resizeWindow('image', 600, 400)
         cv2.setMouseCallback('image', self.on_mouse_main)
 

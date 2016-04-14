@@ -130,10 +130,14 @@ if __name__ == "__main__":
 
     while camSettings.cap.isOpened:
         _, image = camSettings.cap.read()
-        small = cv2.resize(image, (0, 0), fx=0.25, fy=0.25, interpolation=cv2.INTER_AREA)
+        small = cv2.resize(image, (0, 0), fx=0.75, fy=0.75, interpolation=cv2.INTER_AREA)
         cv2.imshow("window2", small)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'):
             camSettings.save()
             break
+        elif key == ord('x'):
+            break
+
 cap.release()
 cv2.destroyAllWindows()

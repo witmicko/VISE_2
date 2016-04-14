@@ -1,12 +1,12 @@
 cap:
-  brightness: 150
-  contrast: 223
+  brightness: 114
+  contrast: 140
   exposure: -4.0
   focus: 25
-  gain: 69
+  gain: 79
   res_x: 1920
   res_y: 1080
-  saturation: 111
+  saturation: 115
   sharpness: 255.0
   white_balance: -1
   zoom: 100.0

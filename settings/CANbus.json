@@ -1,38 +1,34 @@
 {
     "baud_rate":500,
-    "device":"CANCARDXL",
+    "device":"VIRTUAL",
     "messages":{
         "ABS":{
             "dlc":1,
-            "id":66
+            "id":100
         },
         "AIRBAG":{
             "dlc":1,
-            "id":67
-        },
-        "BRAKE":{
-            "dlc":1,
-            "id":68
+            "id":101
         },
         "BRAKE_WARN":{
             "dlc":1,
-            "id":69
+            "id":102
         },
         "ESP":{
             "dlc":1,
-            "id":70
+            "id":103
         },
         "ESP_OFF":{
             "dlc":1,
-            "id":71
+            "id":104
         },
         "REVS":{
             "dlc":2,
-            "id":72
+            "id":105
         },
         "SPEED":{
             "dlc":2,
-            "id":73
+            "id":106
         }
     }
 }

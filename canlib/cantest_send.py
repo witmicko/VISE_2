@@ -12,7 +12,7 @@ import time
 if __name__ == "__main__":
     can = canlib_xl.candriver()
     can.open_driver()
-    mask = can.get_channel_mask(hwtype=canlib_xl.XL_HWTYPE_VIRTUAL)
+    mask = can.get_channel_mask(hwtype=canlib_xl.devices['VN8950'])
     ok, phandle, pmask = can.open_port()
     # ok, phandle, pmask = can.open_port(user_name='VISE',
     #                                    access_mask=mask,

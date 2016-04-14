@@ -26,28 +26,34 @@ class CanDriver:
             print('error in CANbus.json, missing messages')
 
         else:
-            self.valid_setup = True
-            self.messages = settings['messages']
-            self.can = candriver()
-            self.can.open_driver()
-            device_id = get_device_id_by_type(settings['device'])
-            self.mask = self.can.get_channel_mask(hwtype=device_id, hwchannel=0, hwindex=0)
-            ok, self.phandle, pmask = self.can.open_port(user_name='VISEapp')
-            print('open port: ', canlib_xl.xl_response_codes[str(ok)])
+            for i in range(100):
+                print("=============================",i,"==========================")
+                self.valid_setup = True
+                self.messages = settings['messages']
+                self.can = candriver()
+                self.can.open_driver()
+                device_id = get_device_id_by_type(settings['device'])
+                self.mask = self.can.get_channel_mask(hwtype=i)
+                ok, self.phandle, pmask = self.can.open_port(user_name='VISEapp')
+                print('open port: ', canlib_xl.xl_response_codes[str(ok)])
 
-            ok = self.can.can_set_channel_bitrate(self.phandle, self.mask, settings['baud_rate']*1000)
-            print('can_set_channel_bitrate: ', canlib_xl.xl_response_codes[str(ok)])
+                ok = self.can.can_set_channel_bitrate(self.phandle, self.mask, settings['baud_rate']*1000)
+                print('can_set_channel_bitrate: ', canlib_xl.xl_response_codes[str(ok)])
 
-            ok = self.can.get_appl_config()
-            print('get_appl_config: ', canlib_xl.xl_response_codes[str(ok[0])])
-            ok = self.can.activate_channel(self.phandle)
-            print('activate_channel: ', canlib_xl.xl_response_codes[str(ok)])
+                ok = self.can.get_appl_config()
+                print('get_appl_config: ', canlib_xl.xl_response_codes[str(ok[0])])
+                ok = self.can.activate_channel(self.phandle)
+                if ok == 0:
+                    print(i)
+                    break
+                self.transmit_on_bus(self.get_test_message())
+                print('activate_channel: ', canlib_xl.xl_response_codes[str(ok)])
 
     def transmit_on_bus(self, message):
         event_count = ctypes.c_ulong(1)
         ok = self.can.can_transmit(self.phandle, self.mask, event_count, message)
-        # rec_string = self.can.get_event_string(message)
-        # print('transmit:', canlib_xl.xl_response_codes[str(ok)], ", msg:", rec_string)
+        rec_string = self.can.get_event_string(message)
+        print('transmit:', canlib_xl.xl_response_codes[str(ok)], ", msg:", rec_string)
 
     def transmit(self, name, value):
         tx_id = self.messages[name]['id']

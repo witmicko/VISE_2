@@ -46,7 +46,7 @@ class ClusterReader:
         # cv2.resizeWindow('prev', 600, 400)
         cv2.namedWindow('image', flags=cv2.WINDOW_KEEPRATIO)
         cv2.moveWindow('image', 600, 200)
-        cv2.resizeWindow('image', 1280, 720)
+        cv2.resizeWindow('image', 800, 600)
         cv2.setMouseCallback('image', self.on_mouse_main)
 
     def setup_capture(self):
