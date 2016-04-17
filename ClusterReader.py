@@ -1,4 +1,5 @@
 import time
+import timeit
 
 import yaml
 
@@ -9,7 +10,7 @@ from utils import file_utils
 
 GREY_MODE = True
 CAMERA    = False
-
+LED_ON_BW_RATIO = 0.25
 
 class ClusterReader:
     def __init__(self):
@@ -83,7 +84,10 @@ class ClusterReader:
                     self.img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 else:
                     self.img = frame
+                # start = time.time()
                 self.analyse()
+                # end = time.time()
+                # print('analysis time: ', end - start)
                 self.draw_overlay()
 
             if GREY_MODE:
@@ -144,17 +148,18 @@ class ClusterReader:
             #     end = time.time()
 
             if data['type'] == 'LED':
-                white, black, total = 0, 0, 0
+                black = 0
                 for x in np.nditer(im_bw):
-                    total += 1
-                    if x == 0:
+                    y = int(x)
+                    if y == 0:
                         black += 1
-                    else:
-                        white += 1
-                if white >= total * 0.25:
+                total = im_bw.size
+                white = total - black
+                if white >= total * LED_ON_BW_RATIO:
                     value = 1
                 else:
                     value = 0
+
             elif data['type'] == 'ANALOG':
                 center = (int(img.shape[0] / 2), int(img.shape[1] / 2))
                 lines = cv.detect_lines_p(im_bw)
@@ -173,7 +178,6 @@ class ClusterReader:
                     value = int(interpolated * 1000) if name == 'REVS' else int(interpolated)
             self.current_state[name] = value
             self.can_bus.transmit(name, value)
-
 
     def build_initial_state(self):
         state = {}
