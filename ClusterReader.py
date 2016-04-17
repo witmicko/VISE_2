@@ -76,6 +76,7 @@ class ClusterReader:
     def capture(self):
         """runs main loop and camera"""
         self.start = time.time()
+        analytics_time = []
         while self.cap.isOpened():
             if not self.paused:
                 ret, frame = self.cap.read()
@@ -84,10 +85,10 @@ class ClusterReader:
                     self.img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 else:
                     self.img = frame
-                # start = time.time()
+                start = time.time()
                 self.analyse()
-                # end = time.time()
-                # print('analysis time: ', end - start)
+                end = time.time()
+                analytics_time.append(end - start)
                 self.draw_overlay()
 
             if GREY_MODE:
@@ -108,10 +109,12 @@ class ClusterReader:
             if key == ord('q'):
                 end = time.time()
                 durr = end - self.start - self.paused_time
+                print('Average analytics time per frame: ', np.mean(analytics_time) * 1000)
                 print('durr', durr)
                 print('paused time', self.paused_time)
                 print('frames', self.frame_count)
                 print('fps', self.frame_count / durr)
+                print('Time per frame: ', (durr / self.frame_count * 1000))
                 break
             elif key == ord(' '):
                 paused_time = time.time()
@@ -166,15 +169,12 @@ class ClusterReader:
                 degs = get_line_degrees(lines, center)
                 if degs is not None:
                     values_data = data['data']
-                    xp = []
-                    fp = []
-                    kk = []
+                    x_values, y_values = [], []
                     for d in values_data:
-                        kk.append([d['degree'], d['value']])
-                        xp.append(d['degree']*1.0)
-                        fp.append(d['value']*1.0)
-                    avg_deg = np.mean(degs)
-                    interpolated = np.interp(avg_deg * 1.0, xp=xp, fp=fp, period=360)
+                        x_values.append(d['degree'] * 1.0)
+                        y_values.append(d['value']  * 1.0)
+                    avg_deg = np.mean(degs) * 1.0
+                    interpolated = np.interp(avg_deg, xp=x_values, fp=y_values, period=360)
                     value = int(interpolated * 1000) if name == 'REVS' else int(interpolated)
             self.current_state[name] = value
             self.can_bus.transmit(name, value)

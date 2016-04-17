@@ -110,6 +110,7 @@ class Training:
     def capture(self):
         """runs main loop and camera"""
         self.start = time.time()
+        analytics_time = []
         while self.cap.isOpened():
             if not self.paused:
                 ret, frame = self.cap.read()
@@ -118,7 +119,11 @@ class Training:
                     self.img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 else:
                     self.img = frame
+                start = time.time()
                 self.detect(image=self.img)
+                end = time.time()
+                analytics_time.append(end - start)
+                # print('analysis time: ', end - start)
 
             self.draw_overlay()
             if GREY_MODE:
@@ -128,15 +133,17 @@ class Training:
                 dst = cv2.addWeighted(self.img, 0.7, self.overlay, 0.3, 0)
 
             cv2.imshow('image', dst)
-            key = cv2.waitKey(33) & 0xFF
+            key = cv2.waitKey(1) & 0xFF
             if key == ord('q'):
+                print('Average analytics time per frame: ', np.mean(analytics_time) * 1000)
                 file_utils.save_training_json(self.training_data)
                 end = time.time()
                 durr = end - self.start - self.paused_time
-                print('durr', durr)
-                print('paused time', self.paused_time)
-                print('frames', self.frame_count)
-                print('fps', self.frame_count / durr)
+                # print('durr', durr)
+                # print('paused time', self.paused_time)
+                print('Frames processed', self.frame_count)
+                print('FPS', self.frame_count / durr)
+                print('Time per frame: ', (durr * 1000) / self.frame_count)
                 break
             elif key == ord(' '):
                 paused_time = time.time()
