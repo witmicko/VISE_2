@@ -5,6 +5,12 @@ import numpy as np
 
 
 def get_angle_between_points(origin, end):
+    """
+    Calculates an angle of a line created by two points
+    :param origin:
+    :param end:
+    :return:
+    """
     x_diff = end[0] - origin[0]
     y_diff = origin[1] - end[1]
     deg = degrees(atan2(y_diff, x_diff))

@@ -42,12 +42,8 @@ class ClusterReader:
         self.left_click_dialog = False
 
     def setup_window(self):
-        # cv2.namedWindow('prev', flags=cv2.WINDOW_KEEPRATIO)
-        # cv2.moveWindow('prev', 1200, 400)
-        # cv2.resizeWindow('prev', 600, 400)
         cv2.namedWindow('image', flags=cv2.WINDOW_KEEPRATIO)
         cv2.moveWindow('image', 600, 200)
-        # cv2.resizeWindow('image', 800)
         cv2.setMouseCallback('image', self.on_mouse_main)
 
     def setup_capture(self):
@@ -144,11 +140,6 @@ class ClusterReader:
             img = self.img[roi[0][1]:roi[3][1], roi[0][0]:roi[3][0]]
             _, im_bw = cv2.threshold(img, 150, 250, cv2.THRESH_BINARY)
             value = 0
-            # cv2.imshow('image1', img)
-            # cv2.imshow('image2', im_bw)
-            # key = cv2.waitKey(0) & 0xFF
-            # if key == ord('q'):
-            #     end = time.time()
 
             if data['type'] == 'LED':
                 black = 0

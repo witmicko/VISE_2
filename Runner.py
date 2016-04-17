@@ -1,5 +1,4 @@
 import os
-
 from easygui import buttonbox
 
 choices = ('Camera Settings',

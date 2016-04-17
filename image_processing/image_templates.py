@@ -9,13 +9,10 @@ LED_TEMPLATES = {
     'BRAKE_WARN':   {'active': True, 'file': 'parking_brake_warn.png'},
     'ESP':          {'active': True, 'file': 'esp.png'},
     'ESP_OFF':      {'active': False, 'file': 'esp_off.png'},
-    # 'FUEL':         {'active': False, 'file': 'fuel.png'},
-    # 'GB_SPEED':     {'active': False, 'file': 'gear_speed.png'},
-    # 'IND_LT':       {'active': False, 'file': 'ind_left.png'},
-    # 'IND_RT':       {'active': False, 'file': 'ind_right.png'},
+    'IND_LT':       {'active': False, 'file': 'ind_left.png'},
+    'IND_RT':       {'active': False, 'file': 'ind_right.png'},
     'REVS':         {'active': False, 'file': 'revs.png'},
     'SPEED':        {'active': False, 'file': 'speed.png'}
-    # 'WATER':        {'active': False, 'file': 'water.png'}
      }
 
 

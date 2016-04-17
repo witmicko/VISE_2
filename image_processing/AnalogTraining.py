@@ -5,6 +5,10 @@ from image_processing.geometry import get_angle_between_points
 
 
 class AnalogTraining:
+    """
+        Class handling training of an analogue guage, shows the new window,
+        captures users mouse clicks and saves reference points.
+    """
     def __init__(self, match_rec, img):
         self.match_rec = match_rec
         self.img = img.copy()
@@ -14,15 +18,10 @@ class AnalogTraining:
 
     def run(self):
         cv2.namedWindow('ANALOG', flags=cv2.WINDOW_KEEPRATIO)
-        # cv2.moveWindow('ANALOG', 0, 0)
-        # cv2.resizeWindow('ANALOG', 1280, 720)
         cv2.setMouseCallback('ANALOG', self.on_mouse)
-        x_offset = 0
-        y_offset = 0
         while True:
             image = self.img.copy()
             text = 'Press "e" to exit and save, "r" to reset current data'
-            # cv2.putText(image, text, (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 5, cv2.LINE_AA)
             cv2.putText(img=image, org=(100, 100), text=text,
                         fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1,
                         color=(255, 255, 255), thickness=2, lineType=cv2.LINE_AA)
@@ -34,7 +33,6 @@ class AnalogTraining:
                             fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1,
                             color=(255, 255, 255), thickness=2, lineType=cv2.LINE_AA)
                 h += 30
-
             cv2.imshow('ANALOG', image)
             key = cv2.waitKey(33) & 0xFF
             if key == ord('e'):
@@ -46,8 +44,6 @@ class AnalogTraining:
         return self.training_data
 
     def on_mouse(self, event, x, y, flags, param):
-        # deg = get_angle_between_points(self.center, (x, y))
-        # print(deg)
         if event == cv2.EVENT_LBUTTONDOWN:
             deg = int(get_angle_between_points(self.center, (x, y)))
             deg_plus_90 = (deg + 90)%360

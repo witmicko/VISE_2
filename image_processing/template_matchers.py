@@ -11,6 +11,13 @@ methods = [
 
 
 def match(image=None, template=None, method=cv2.TM_SQDIFF_NORMED):
+    """
+    Searches for a template in provided image.
+    :param image:
+    :param template:
+    :param method:
+    :return: rectangle containing the template
+    """
     h, w = template.shape[:2]
     res = cv2.matchTemplate(image, template, method)
 

@@ -19,6 +19,10 @@ def build_message(tx_id, data, dlc):
 
 
 class CanDriver:
+    """
+    Class handling all CAN communication,
+    Initialises using CAN bus settings json file
+    """
     def __init__(self):
         settings = load_can_bus_json()
         if 'messages' not in settings:
@@ -44,12 +48,21 @@ class CanDriver:
             print('activate_channel: ', canlib_xl.xl_response_codes[str(ok)])
 
     def transmit_on_bus(self, message):
+        """
+        Transmits provided CAN message onto the bus.
+        :param message:
+        :return:
+        """
         event_count = ctypes.c_ulong(1)
-        ok = self.can.can_transmit(self.phandle, self.mask, event_count, message)
-        # rec_string = self.can.get_event_string(message)
-        # print('transmit:', canlib_xl.xl_response_codes[str(ok)], ", msg:", rec_string)
+        self.can.can_transmit(self.phandle, self.mask, event_count, message)
 
     def transmit(self, name, value):
+        """
+        Pack a value into a CAN message and transmit it onto a bus
+        :param name:
+        :param value:
+        :return:
+        """
         tx_id = self.messages[name]['id']
         dlc   = self.messages[name]['dlc']
         msg = build_message(tx_id, value, dlc)

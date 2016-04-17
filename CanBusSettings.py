@@ -1,7 +1,6 @@
 from easygui import *
 from canlib import canlib_xl
 from utils.file_utils import load_can_bus_json, save_can_bus_json, load_training_json
-# todo add vn8910, fix preselc bugs
 
 if __name__ == "__main__":
     settings = load_can_bus_json()
@@ -15,7 +14,7 @@ if __name__ == "__main__":
     device_choice = choicebox(msg, title, choices, preselect=preselect)
 
 
-    # # Baud rate select
+    # Baud rate select
     msg = "Select baud rate to be used."
     title = "Baud rate"
     choices = ["125 kbps", "250 kbps", "500 kbps", "1000 kbps"]
@@ -35,6 +34,7 @@ if __name__ == "__main__":
         start_id = 2049
         for name, data in trained_messages.items():
             start_id = data['id'] if data['id'] <= start_id else start_id
+
     # get user input otherwise
     if start_id == -1:
         msg = "Type in start ID for VISE messages"

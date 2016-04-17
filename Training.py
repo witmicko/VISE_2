@@ -1,5 +1,4 @@
 import time
-
 import image_processing.image_templates as templates
 from image_processing.template_matchers import match
 from image_processing.AnalogTraining    import AnalogTraining
@@ -37,7 +36,6 @@ class Training:
         self.paused = False
 
         self.overlay = cv.get_empty_img(self.res_x, self.res_y)
-        # _, self.current_frame = self.cap.read()
         _, self.img = self.cap.read()
 
         self.matches = {}
@@ -46,8 +44,6 @@ class Training:
 
     def setup_window(self):
         cv2.namedWindow('image', flags=cv2.WINDOW_KEEPRATIO)
-        # cv2.moveWindow('image', 600, 200)
-        # cv2.resizeWindow('image', 600, 400)
         cv2.setMouseCallback('image', self.on_mouse_main)
 
     def setup_capture(self):
@@ -139,8 +135,6 @@ class Training:
                 file_utils.save_training_json(self.training_data)
                 end = time.time()
                 durr = end - self.start - self.paused_time
-                # print('durr', durr)
-                # print('paused time', self.paused_time)
                 print('Frames processed', self.frame_count)
                 print('FPS', self.frame_count / durr)
                 print('Time per frame: ', (durr * 1000) / self.frame_count)
@@ -158,8 +152,12 @@ class Training:
         cv2.destroyAllWindows()
 
     def detect(self, image):
-        """Detects active templates within the image and returns
-            rectangle points starting at top left and going clockwise"""
+        """
+        Detects active templates within the image,
+        returns rectangle points starting at top left and going clockwise
+        :param image:
+        :return:
+        """
         for name, t in self.templates.items():
             if t['active'] and name not in self.training_data:
                 template = t['img']
@@ -167,7 +165,10 @@ class Training:
                 self.matches[name] = rec
 
     def draw_overlay(self):
-        """Draws overlay with detected templates and training data"""
+        """
+        Draws overlay with detected templates and training data
+        :return:
+        """
         self.overlay = cv.get_empty_img(self.res_x, self.res_y)
         drawn = []
         for name, data in self.training_data.items():
@@ -186,6 +187,12 @@ class Training:
                             color=(0, 0, 255), thickness=5)
 
     def training_data_dialog(self, x, y):
+        """
+        Shows the dialog when user clicks inside of a detected element
+        :param x:
+        :param y:
+        :return:
+        """
         xx = self.is_click_inside_rect(x, y)
         if xx:
             choice = choicebox(msg='select template detected properly and ready to save as training data', choices=xx)
