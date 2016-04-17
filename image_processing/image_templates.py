@@ -10,7 +10,7 @@ LED_TEMPLATES = {
     'ESP':          {'active': False, 'file': 'esp.png'},
     'ESP_OFF':      {'active': False, 'file': 'esp_off.png'},
     # 'FUEL':         {'active': False, 'file': 'fuel.png'},
-    'GB_SPEED':     {'active': False, 'file': 'gear_speed.png'},
+    # 'GB_SPEED':     {'active': False, 'file': 'gear_speed.png'},
     # 'IND_LT':       {'active': False, 'file': 'ind_left.png'},
     # 'IND_RT':       {'active': False, 'file': 'ind_right.png'},
     'REVS':         {'active': False, 'file': 'revs.png'},

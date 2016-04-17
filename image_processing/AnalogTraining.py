@@ -14,8 +14,8 @@ class AnalogTraining:
 
     def run(self):
         cv2.namedWindow('ANALOG', flags=cv2.WINDOW_KEEPRATIO)
-        cv2.moveWindow('ANALOG', 0, 0)
-        cv2.resizeWindow('ANALOG', 1280, 720)
+        # cv2.moveWindow('ANALOG', 0, 0)
+        # cv2.resizeWindow('ANALOG', 1280, 720)
         cv2.setMouseCallback('ANALOG', self.on_mouse)
         x_offset = 0
         y_offset = 0

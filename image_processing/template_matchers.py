@@ -27,4 +27,3 @@ def match(image=None, template=None, method=cv2.TM_SQDIFF_NORMED):
         rec = [top_left, (bottom_right[0], top_left[1]), (top_left[0], bottom_right[1]), bottom_right]
         return rec
 
-# def match_2(image=None,template=None, method=cv2.TM_SQDIFF_NORMED):

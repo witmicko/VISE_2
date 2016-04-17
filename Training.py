@@ -11,7 +11,7 @@ from easygui import *
 from utils import file_utils
 
 GREY_MODE = True
-CAMERA    = True
+CAMERA    = False
 
 
 class Training:
@@ -46,8 +46,8 @@ class Training:
 
     def setup_window(self):
         cv2.namedWindow('image', flags=cv2.WINDOW_KEEPRATIO)
-        cv2.moveWindow('image', 600, 200)
-        cv2.resizeWindow('image', 600, 400)
+        # cv2.moveWindow('image', 600, 200)
+        # cv2.resizeWindow('image', 600, 400)
         cv2.setMouseCallback('image', self.on_mouse_main)
 
     def setup_capture(self):
