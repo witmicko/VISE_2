@@ -4,18 +4,21 @@ import timeit
 import yaml
 
 from CanDriver import CanDriver
+from ComComms import ComComms
 from image_processing.geometry import *
 from image_processing import image_analysis as cv
 from utils import file_utils
 
 GREY_MODE = True
-CAMERA    = False
+CAMERA    = True
 LED_ON_BW_RATIO = 0.25
 
 class ClusterReader:
     def __init__(self):
         can = CanDriver()
         self.can_bus = can if can.valid_setup else None
+
+        self.com = ComComms()
 
         self.frame_count = 0
         self.start = None
@@ -177,7 +180,10 @@ class ClusterReader:
                     interpolated = np.interp(avg_deg, xp=x_values, fp=y_values, period=360)
                     value = int(interpolated * 1000) if name == 'REVS' else int(interpolated)
             self.current_state[name] = value
-            self.can_bus.transmit(name, value)
+            if self.can_bus is not None:
+                self.can_bus.transmit(name, value)
+            self.com.set_env_var(name, value)
+
 
     def build_initial_state(self):
         state = {}

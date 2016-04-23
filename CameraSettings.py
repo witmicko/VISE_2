@@ -133,10 +133,10 @@ if __name__ == "__main__":
         small = cv2.resize(image, (0, 0), fx=0.75, fy=0.75, interpolation=cv2.INTER_AREA)
         cv2.imshow("window2", small)
         key = cv2.waitKey(1) & 0xFF
-        if key == ord('q'):
+        if key == ord('s'):
             camSettings.save()
             break
-        elif key == ord('x'):
+        elif key == ord('q'):
             break
 
 cap.release()

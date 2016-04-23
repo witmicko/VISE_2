@@ -1,7 +1,7 @@
 import ctypes
 
 from canlib import canlib_xl
-from canlib.canlib_xl import candriver, get_device_id_by_type
+from canlib.canlib_xl import candriver, get_device_id_by_type, XLaccess, XLporthandle
 from utils.file_utils import load_can_bus_json
 
 
@@ -31,8 +31,13 @@ class CanDriver:
             self.can = candriver()
             self.can.open_driver()
             device_id = get_device_id_by_type(settings['device'])
-            self.mask = self.can.get_channel_mask(hwtype=device_id, hwchannel=0, hwindex=0)
-            ok, self.phandle, pmask = self.can.open_port(user_name='VISEapp')
+            self.mask = self.can.get_channel_mask(hwtype=device_id, hwchannel=1, hwindex=0)
+            print('getChangelMask', self.mask)
+            ok, self.phandle, pmask = self.can.open_port(user_name="VISEapp",
+                                                         port_handle=XLporthandle(-1),
+                                                         access_mask=XLaccess(1),
+                                                         permission_mask=XLaccess(1)
+                                                         )
             print('open port: ', canlib_xl.xl_response_codes[str(ok)])
 
             ok = self.can.can_set_channel_bitrate(self.phandle, self.mask, settings['baud_rate']*1000)

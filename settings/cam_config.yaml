@@ -1,8 +1,8 @@
 cap:
-  brightness: 150
-  contrast: 223
+  brightness: 142
+  contrast: 222
   exposure: -4.0
-  focus: 25
+  focus: 35
   gain: 69
   res_x: 1920
   res_y: 1080

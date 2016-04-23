@@ -11,7 +11,7 @@ from easygui import *
 from utils import file_utils
 
 GREY_MODE = True
-CAMERA    = False
+CAMERA    = True
 
 
 class Training:

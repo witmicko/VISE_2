@@ -1,10 +1,10 @@
 # from __future__ import print_function
 from _ctypes import POINTER
-from builtins import range
 from builtins import object
 import ctypes
 
-XLuint64 = ctypes.c_ulonglong
+XLuint64 = ctypes.c_uint64
+# XLuint64 = ctypes.c_ulonglong
 XLaccess = XLuint64
 XLstatus = ctypes.c_short
 XLporthandle = ctypes.c_long
@@ -142,9 +142,10 @@ class s_xl_event(ctypes.Structure):
                 ("tagData", s_xl_tag_data)]
 
 
+
 XLevent = s_xl_event
 
-xl_response_codes ={
+xl_response_codes = {
     '0': "XL_SUCCESS",
     '10': "XL_ERR_QUEUE_IS_EMPTY",
     '11': "XL_ERR_QUEUE_IS_FULL",
@@ -214,6 +215,8 @@ class candriver(object):
                   rx_queue_size=256,
                   interface_version=XL_INTERFACE_VERSION,
                   bus_type=XL_BUS_TYPE_CAN):
+
+
         self.candll.xlOpenPort.argtypes = [ctypes.POINTER(XLporthandle),
                                            ctypes.c_char_p,
                                            XLaccess,

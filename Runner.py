@@ -5,6 +5,7 @@ from easygui import buttonbox
 choices = ('Camera Settings',
            'Training Mode',
            'CAN bus settings',
+           'CANdb generator',
            'Working Mode')
 
 
@@ -25,6 +26,9 @@ while True:
 
     elif choice == 'CAN bus settings':
         os.system("CanBusSettings.py")
+
+    elif choice == 'CANdb generator':
+        os.system("CANdbBuilder.py")
 
     elif choice == 'Working Mode':
         os.system("ClusterReader.py")
